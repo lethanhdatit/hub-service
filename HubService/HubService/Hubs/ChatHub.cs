@@ -12,5 +12,19 @@ namespace HubService.Hubs
         {
             await Clients.All.SendAsync("ReceiveMessage", user, message);
         }
+        public async Task SendMessageToGroup(string userid, string username, string groupid, string groupname, string message)
+        {
+            await Clients.Group(groupid).SendAsync("ReceiveGroupMessage", userid, username, groupid, groupname, message);
+        }
+        public override async Task OnConnectedAsync()
+        {
+            await base.OnConnectedAsync();
+        }
+        public async Task AddUserToGroup(string[] groupids)
+        {
+            if (groupids != null)
+                foreach (var groupid in groupids)
+                    await Groups.AddToGroupAsync(Context.ConnectionId, groupid);
+        }
     }
 }
