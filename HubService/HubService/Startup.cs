@@ -8,6 +8,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.OpenApi.Models;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -29,18 +30,25 @@ namespace HubService
         {
 
             services.AddControllers();
-            services.AddCors(options =>
-            {
-                options.AddPolicy("_myAllowSpecificOrigins",
-                    builder =>
-                    {
-                        builder.WithOrigins("https://localhost:44344/")
-                               .AllowAnyHeader()
-                               .AllowAnyMethod()
-                               .SetIsOriginAllowed((x) => true)
-                               .AllowCredentials();
-                    });
-            });
+            services.AddSingleton<IConfiguration>(Configuration);
+
+            var whiteListDomains = Configuration.GetSection("WhiteListDomain").Get<List<string>>();
+
+            if (whiteListDomains != null && whiteListDomains.Any())
+                services.AddCors(options =>
+                {
+                    options.AddPolicy("_myAllowSpecificOrigins",
+                        builder =>
+                        {
+                            foreach (var domain in whiteListDomains)
+                                builder.WithOrigins(domain)
+                                       .AllowAnyHeader()
+                                       .AllowAnyMethod()
+                                       .SetIsOriginAllowed((x) => true)
+                                       .AllowCredentials();
+                        });
+                });
+
             services.AddSignalR();
             services.AddSwaggerGen(c =>
             {
