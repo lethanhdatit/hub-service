@@ -23,7 +23,7 @@ namespace HubService.Controllers
         public async Task<object> Send([FromBody]MessageInfo info)
         {
             await _hubContext.Clients.Group(info.groupid).SendAsync("ReceiveGroupMessage", info.userid, info.username, info.groupid, info.groupname, info.message).ConfigureAwait(false);
-
+            //https://code-maze.com/how-to-send-client-specific-messages-using-signalr/
             return Ok("Sent!");
         }
     }
