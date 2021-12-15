@@ -37,7 +37,7 @@ namespace HubService
             if (whiteListDomains != null && whiteListDomains.Any())
                 services.AddCors(options =>
                 {
-                    options.AddPolicy("_myAllowSpecificOrigins",
+                    options.AddPolicy("myAllowSpecificOrigins",
                         builder =>
                         {
                             foreach (var domain in whiteListDomains)
@@ -69,7 +69,7 @@ namespace HubService
             app.UseHttpsRedirection();
 
             app.UseRouting();
-            app.UseCors("_myAllowSpecificOrigins");
+            app.UseCors("myAllowSpecificOrigins");
             app.UseAuthorization();
 
             app.UseEndpoints(endpoints =>

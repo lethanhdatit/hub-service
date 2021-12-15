@@ -1,10 +1,11 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using HubService.Hubs;
+using HubService.Models;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.SignalR;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-
-// For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
 namespace HubService.Controllers
 {
@@ -12,11 +13,18 @@ namespace HubService.Controllers
     [ApiController]
     public class HubController : ControllerBase
     {
-        // GET: api/<HubController>
-        [HttpGet]
-        public IEnumerable<string> Get()
+        private readonly IHubContext<ChatHub> _hubContext;
+        public HubController(IHubContext<ChatHub> hubContext)
         {
-            return new string[] { "value1", "value2" };
+            _hubContext = hubContext;
+        }
+        
+        [HttpPost("Send")]
+        public async Task<object> Send([FromBody]MessageInfo info)
+        {
+            await _hubContext.Clients.Group(info.groupid).SendAsync("ReceiveGroupMessage", info.userid, info.username, info.groupid, info.groupname, info.message).ConfigureAwait(false);
+
+            return Ok("Sent!");
         }
     }
 }
